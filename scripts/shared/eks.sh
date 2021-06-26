@@ -122,7 +122,8 @@ chown root:root /var/lib/kubelet/kubeconfig
 curl -sL -o /etc/systemd/system/kubelet.service https://raw.githubusercontent.com/awslabs/amazon-eks-ami/master/files/kubelet.service
 chown root:root /etc/systemd/system/kubelet.service
 
-curl -sL -o /etc/kubernetes/kubelet/kubelet-config.json https://raw.githubusercontent.com/awslabs/amazon-eks-ami/master/files/kubelet-config.json
+#curl -sL -o /etc/kubernetes/kubelet/kubelet-config.json https://raw.githubusercontent.com/awslabs/amazon-eks-ami/master/files/kubelet-config.json
+cp /etc/packer/files/gitpod/kubelet-config.json /etc/kubernetes/kubelet/kubelet-config.json
 chown root:root /etc/kubernetes/kubelet/kubelet-config.json
 
 configure_kubelet_environment

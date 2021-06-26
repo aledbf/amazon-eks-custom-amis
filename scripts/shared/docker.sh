@@ -48,10 +48,77 @@ elif (is_rhel && is_rhel_8) || (is_centos && is_centos_8); then
 elif is_ubuntu; then
 
   apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-  add-apt-repository "deb [arch=${ARCH}] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  apt-get update -y
-  apt-get install -y docker-ce docker-ce-cli containerd.io
+  #curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+  #add-apt-repository "deb [arch=${ARCH}] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  #apt-get update -y
+  #apt-get install -y docker-ce docker-ce-cli containerd.io
+
+  add-apt-repository -y ppa:tuxinvader/lts-mainline
+  apt-get update
+  apt-get install -y linux-generic-5.12
+
+  # Install required packages
+  apt-get install -y \
+    iptables libseccomp2 socat conntrack ipset \
+    fuse3 \
+    jq \
+    iproute2 \
+    auditd \
+    ethtool
+
+  mkdir -p /etc/modules-load.d/
+
+  # Enable modules
+  cat <<EOF > /etc/modules-load.d/k8s.conf
+overlay
+fuse
+EOF
+
+  # Disable modules
+  cat <<EOF > /etc/modprobe.d/kubernetes-blacklist.conf
+blacklist dccp
+blacklist sctp
+EOF
+
+  # Configure grub
+  echo "GRUB_GFXPAYLOAD_LINUX=keep" >> /etc/default/grub
+  # Enable cgroups2
+  sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1 cgroup_no_v1=all \1"/g' /etc/default/grub
+  update-grub2
+
+  # Install containerd
+  curl -sSL https://github.com/containerd/nerdctl/releases/download/v0.9.0/nerdctl-full-0.9.0-linux-amd64.tar.gz -o - | tar -xz -C /usr/local
+  # remove default containerd cni
+  rm -f /etc/cni/net.d/10-containerd-net.conflist
+
+  mkdir -p /etc/containerd
+  cp /etc/packer/files/gitpod/containerd.toml /etc/containerd/config.toml
+
+  cp /usr/local/lib/systemd/system/* /lib/systemd/system/
+
+  cp /etc/packer/files/gitpod/sysctl.conf /etc/sysctl.d/k8s.conf
+  cp /etc/packer/files/gitpod/rc.local    /etc/rc.local
+  cp /etc/packer/files/gitpod/sysctl.conf /etc/sysctl.d/98-k8s.conf
+
+  chmod +x /etc/rc.local
+
+  # Disable software irqbalance service
+  systemctl stop irqbalance.service
+  systemctl disable irqbalance.service
+
+  # Reload systemd
+  systemctl daemon-reload
+
+  systemctl enable rc-local
+
+  mkdir -p /etc/containerd-stargz-grpc/
+
+  # Start containerd and stargz
+  systemctl enable containerd
+  systemctl enable stargz-snapshotter
+
+  echo "-a never,task" > /etc/audit/rules.d/disable-syscall-auditing.rules
+  augenrules --load
 
 else
 
@@ -65,14 +132,6 @@ mkdir -p /etc/systemd/system/docker.service.d
 mkdir -p /etc/docker
 
 DOCKER_SELINUX_ENABLED="false"
-
-if selinuxenabled; then
-  # enable container selinux boolean
-  setsebool container_manage_cgroup on
-
-  # enable SELinux in the docker daemon
-  DOCKER_SELINUX_ENABLED="true"
-fi
 
 cat > /etc/docker/daemon.json <<EOF
 {
@@ -110,6 +169,6 @@ chown root:root /etc/docker/daemon.json
 
 configure_docker_environment
 
-systemctl daemon-reload
-systemctl enable docker && systemctl start docker
+#systemctl daemon-reload
+#systemctl enable docker && systemctl start docker
 
