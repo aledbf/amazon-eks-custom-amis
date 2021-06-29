@@ -64,7 +64,8 @@ elif is_ubuntu; then
     jq \
     iproute2 \
     auditd \
-    ethtool
+    ethtool \
+    net-tools
 
   mkdir -p /etc/modules-load.d/
 
@@ -95,6 +96,7 @@ EOF
   cp /etc/packer/files/gitpod/containerd.toml /etc/containerd/config.toml
 
   cp /usr/local/lib/systemd/system/* /lib/systemd/system/
+  sed -i 's/--log-level=debug//g' /lib/systemd/system/stargz-snapshotter.service
 
   cp /etc/packer/files/gitpod/sysctl.conf /etc/sysctl.d/k8s.conf
   cp /etc/packer/files/gitpod/rc.local    /etc/rc.local
