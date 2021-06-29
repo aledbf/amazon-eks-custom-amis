@@ -42,6 +42,7 @@
     "TLS_RSA_WITH_AES_256_GCM_SHA384",
     "TLS_RSA_WITH_AES_128_GCM_SHA256"
   ],
-  "registryPullQPS": 15,
-  "registryBurst": 25
+  "resolvConf": "/run/systemd/resolve/resolv.conf",
+  "registryBurst": 20,
+  "registryQps": 15
 }

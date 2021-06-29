@@ -119,7 +119,8 @@ mkdir -p /etc/systemd/system/kubelet.service.d
 curl -sL -o /var/lib/kubelet/kubeconfig https://raw.githubusercontent.com/awslabs/amazon-eks-ami/master/files/kubelet-kubeconfig
 chown root:root /var/lib/kubelet/kubeconfig
 
-curl -sL -o /etc/systemd/system/kubelet.service https://raw.githubusercontent.com/awslabs/amazon-eks-ami/master/files/kubelet.service
+#curl -sL -o /etc/systemd/system/kubelet.service https://raw.githubusercontent.com/awslabs/amazon-eks-ami/master/files/kubelet.service
+cp /etc/packer/files/gitpod/kubelet.service /etc/systemd/system/kubelet.service
 chown root:root /etc/systemd/system/kubelet.service
 
 #curl -sL -o /etc/kubernetes/kubelet/kubelet-config.json https://raw.githubusercontent.com/awslabs/amazon-eks-ami/master/files/kubelet-config.json
@@ -129,6 +130,18 @@ chown root:root /etc/kubernetes/kubelet/kubelet-config.json
 configure_kubelet_environment
 
 systemctl daemon-reload && systemctl disable kubelet
+
+mkdir -p /var/lib/containerd/io.containerd.snapshotter.v1.stargz
+
+# start containerd to preload images
+systemctl start containerd
+
+chmod +x /etc/packer/files/gitpod/pull-images.sh
+/etc/packer/files/gitpod/pull-images.sh
+
+sleep 60
+
+systemctl stop containerd
 
 ################################################################################
 ### EKS ########################################################################

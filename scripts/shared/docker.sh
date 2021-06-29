@@ -55,7 +55,7 @@ elif is_ubuntu; then
 
   add-apt-repository -y ppa:tuxinvader/lts-mainline
   apt-get update
-  apt-get install -y linux-generic-5.12
+  apt-get install -y linux-generic-5.13
 
   # Install required packages
   apt-get install -y \
@@ -83,8 +83,8 @@ EOF
   # Configure grub
   echo "GRUB_GFXPAYLOAD_LINUX=keep" >> /etc/default/grub
   # Enable cgroups2
-  sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1 cgroup_no_v1=all \1"/g' /etc/default/grub
-  update-grub2
+  #sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1 cgroup_no_v1=all \1"/g' /etc/default/grub
+  #update-grub2
 
   # Install containerd
   curl -sSL https://github.com/containerd/nerdctl/releases/download/v0.9.0/nerdctl-full-0.9.0-linux-amd64.tar.gz -o - | tar -xz -C /usr/local

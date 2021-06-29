@@ -13,6 +13,6 @@ rm -rf \
     /var/log/audit-old \
     /home-old \
     /etc/packer \
-    /var/lib/docker-old 
+    /var/lib/docker-old
 
 touch /etc/machine-id

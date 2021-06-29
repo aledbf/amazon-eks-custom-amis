@@ -117,8 +117,7 @@
       "type":"shell",
       "scripts":[
         "./scripts/shared/docker.sh",
-        "./scripts/shared/eks.sh",
-        "./scripts/shared/cis-eks.sh"
+        "./scripts/shared/eks.sh"
       ],
       "environment_vars": [
         "HTTP_PROXY={{user `http_proxy`}}",
