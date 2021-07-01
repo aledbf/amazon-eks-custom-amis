@@ -71,6 +71,7 @@ elif is_ubuntu; then
 
   # Enable modules
   cat <<EOF > /etc/modules-load.d/k8s.conf
+ena
 overlay
 fuse
 EOF
@@ -98,11 +99,7 @@ EOF
   cp /usr/local/lib/systemd/system/* /lib/systemd/system/
   sed -i 's/--log-level=debug//g' /lib/systemd/system/stargz-snapshotter.service
 
-  cp /etc/packer/files/gitpod/sysctl.conf /etc/sysctl.d/k8s.conf
-  cp /etc/packer/files/gitpod/rc.local    /etc/rc.local
-  cp /etc/packer/files/gitpod/sysctl.conf /etc/sysctl.d/98-k8s.conf
-
-  chmod +x /etc/rc.local
+  cp /etc/packer/files/gitpod/sysctl/* /etc/sysctl.d/
 
   # Disable software irqbalance service
   systemctl stop irqbalance.service
