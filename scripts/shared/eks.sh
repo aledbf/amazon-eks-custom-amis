@@ -133,16 +133,6 @@ systemctl daemon-reload && systemctl disable kubelet
 
 mkdir -p /var/lib/containerd/io.containerd.snapshotter.v1.stargz
 
-# start containerd to preload images
-systemctl start containerd
-
-chmod +x /etc/packer/files/gitpod/pull-images.sh
-/etc/packer/files/gitpod/pull-images.sh
-
-sleep 60
-
-systemctl stop containerd
-
 ################################################################################
 ### EKS ########################################################################
 ################################################################################

@@ -74,6 +74,7 @@ elif is_ubuntu; then
 ena
 overlay
 fuse
+br_netfilter
 EOF
 
   # Disable modules
@@ -85,13 +86,11 @@ EOF
   # Configure grub
   echo "GRUB_GFXPAYLOAD_LINUX=keep" >> /etc/default/grub
   # Enable cgroups2
-  #sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1 cgroup_no_v1=all \1"/g' /etc/default/grub
-  #update-grub2
+  sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1 cgroup_no_v1=all \1"/g' /etc/default/grub
+  update-grub2
 
   # Install containerd
-  curl -sSL https://github.com/containerd/nerdctl/releases/download/v0.9.0/nerdctl-full-0.9.0-linux-amd64.tar.gz -o - | tar -xz -C /usr/local
-  # remove default containerd cni
-  rm -f /etc/cni/net.d/10-containerd-net.conflist
+  curl -sSL https://github.com/containerd/nerdctl/releases/download/v0.10.0/nerdctl-full-0.10.0-linux-amd64.tar.gz -o - | tar -xz -C /usr/local
 
   mkdir -p /etc/containerd
   cp /etc/packer/files/gitpod/containerd.toml /etc/containerd/config.toml
@@ -115,9 +114,6 @@ EOF
   # Start containerd and stargz
   systemctl enable containerd
   systemctl enable stargz-snapshotter
-
-  echo "-a never,task" > /etc/audit/rules.d/disable-syscall-auditing.rules
-  augenrules --load
 
 else
 
