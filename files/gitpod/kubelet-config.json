@@ -44,5 +44,6 @@
   ],
   "resolvConf": "/run/systemd/resolve/resolv.conf",
   "registryBurst": 20,
-  "registryQps": 15
+  "registryQps": 15,
+  "maxPods": 110
 }
